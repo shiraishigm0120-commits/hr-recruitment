@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String?
+  password      String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  candidates    Candidate[]
+  dailyFunnels  DailyFunnel[]
+  settings      UserSettings?
+}
+
+model Candidate {
+  id               String    @id @default(cuid())
+  userId           String
+  name             String
+  position         String
+  currentStage     String
+  baseLocation     String    @default("")
+  recommendedDate  DateTime?
+  businessPassDate DateTime?
+  inviteDate       DateTime?
+  interviewDate    DateTime?
+  offerDate        DateTime?
+  acceptDate       DateTime?
+  onboardDate      DateTime?
+  statusNote       String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, name])
+}
+
+model DailyFunnel {
+  id                String   @id @default(cuid())
+  userId            String
+  date              DateTime
+  totalApplications Int      @default(0)
+  recommended       Int      @default(0)
+  invited           Int      @default(0)
+  interviewed       Int      @default(0)
+  offersSent        Int      @default(0)
+  offersAccepted    Int      @default(0)
+  onboarded         Int      @default(0)
+  eliminated        Int      @default(0)
+  dailyReport       String?
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, date])
+}
+
+model UserSettings {
+  id         String @id @default(cuid())
+  userId     String @unique
+
+  // Feishu
+  feishuAppId          String?
+  feishuAppSecret      String?
+  feishuBitableToken   String?
+  feishuCandidateTable String?
+  feishuFunnelTable    String?
+
+  // AI
+  aiApiKey  String?
+  aiBaseUrl String?
+  aiModel   String?
+
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
