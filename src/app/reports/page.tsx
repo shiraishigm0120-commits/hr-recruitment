@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { FileText, Send, Calendar, Loader2, RefreshCw, Eye, Sparkles } from "lucide-react";
+import { FileText, Send, Calendar, Loader2, RefreshCw, Eye, Sparkles, Copy, Download } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,26 @@ interface FunnelRecord {
   offersSent: number; offersAccepted: number; onboarded: number;
   eliminated: number; dailyReport: string | null;
 }
+
+const copyReport = async (text: string) => {
+  try {
+    await navigator.clipboard.writeText(text);
+    toast.success("报告已复制到剪贴板");
+  } catch {
+    toast.error("复制失败，请手动选择复制");
+  }
+};
+
+const downloadReport = (text: string, date: string) => {
+  const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `招聘日报_${date}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast.success("报告已下载");
+};
 
 export default function ReportsPage() {
   const [reports, setReports] = useState<FunnelRecord[]>([]);
@@ -156,6 +176,12 @@ export default function ReportsPage() {
                         <>
                           <Button size="sm" variant="ghost" onClick={() => setPreviewing(previewing === date ? null : date)}>
                             <Eye className="w-4 h-4 mr-1" />预览
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => copyReport(existing.dailyReport!)} title="复制报告">
+                            <Copy className="w-4 h-4 mr-1" />复制
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => downloadReport(existing.dailyReport!, date)} title="下载报告">
+                            <Download className="w-4 h-4 mr-1" />下载
                           </Button>
                           <Button size="sm" variant="outline" onClick={() => generateReport(date)} disabled={isGenerating}>
                             <RefreshCw className={cn("w-4 h-4 mr-1", isGenerating && "animate-spin")} />重新生成

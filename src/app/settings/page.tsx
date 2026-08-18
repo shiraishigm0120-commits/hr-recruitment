@@ -23,7 +23,8 @@ export default function SettingsPage() {
     setSaving(true);
     try {
       const res = await fetch("/api/settings", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(settings) });
-      if (!res.ok) throw new Error("保存失败");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "保存失败");
       toast.success("设置已保存");
     } catch (e: any) { toast.error(e.message); } finally { setSaving(false); }
   };

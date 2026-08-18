@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { TrendingUp, Users, CheckCircle, XCircle, Target, RefreshCw, CalendarDays, UserPlus, Phone, Video, FileText } from "lucide-react";
+import { TrendingUp, Users, CheckCircle, XCircle, Target, RefreshCw, CalendarDays, UserPlus, Phone, Video, FileText, Bell, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -199,6 +199,53 @@ export default function DashboardPage() {
           </Card>
         </motion.div>
       )}
+
+      {/* 待办事项 */}
+      {(() => {
+        const needFeedback = candidates.filter(c => c.currentStage === "已面试待反馈");
+        const needOffer = candidates.filter(c => c.currentStage === "Offer");
+        const needFollow = candidates.filter(c => c.currentStage === "推荐简历" || c.currentStage === "邀约面试");
+        const totalTodos = needFeedback.length + needOffer.length + needFollow.length;
+        if (totalTodos === 0) return null;
+        return (
+          <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }}>
+            <Card className="border-amber-200 dark:border-amber-900 bg-amber-50/50 dark:bg-amber-950/10">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Bell className="w-4 h-4 text-amber-500" />
+                  待办事项
+                  <span className="text-xs font-normal text-muted-foreground">共 {totalTodos} 项</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-4">
+                  {needFeedback.length > 0 && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Clock className="w-4 h-4 text-purple-500" />
+                      <span className="text-muted-foreground">待反馈</span>
+                      <span className="font-bold text-purple-600">{needFeedback.length}人</span>
+                    </div>
+                  )}
+                  {needOffer.length > 0 && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <FileText className="w-4 h-4 text-cyan-500" />
+                      <span className="text-muted-foreground">待发Offer</span>
+                      <span className="font-bold text-cyan-600">{needOffer.length}人</span>
+                    </div>
+                  )}
+                  {needFollow.length > 0 && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Phone className="w-4 h-4 text-amber-500" />
+                      <span className="text-muted-foreground">待跟进</span>
+                      <span className="font-bold text-amber-600">{needFollow.length}人</span>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        );
+      })()}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
